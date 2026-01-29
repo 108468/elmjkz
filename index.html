@@ -1,656 +1,1004 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <title>电子健康证编辑器</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <meta name="format-detection" content="telephone=no">
-  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-  <style>
-    html { font-size: 16px; }
-    html, body { margin: 0 auto; }
-    .fc { color: rgb(4,4,130); font-weight: bold; font-size: 14px; }
-    .f1 { color: #000; font-weight: bold; font-size: 14px; text-decoration: none; }
-    .dis { display: flex; justify-content: space-between; }
-    .error { color: red; font-weight: bold; }
-    .editor-container { 
-      margin: 20px auto; 
-      padding: 20px; 
-      background: #F8F8F8; 
-      border-radius: 10px; 
-      max-width: 800px;
-    }
-    .form-group { 
-      margin-bottom: 15px; 
-    }
-    label { 
-      display: block; 
-      margin-bottom: 5px; 
-      font-weight: bold;
-    }
-    input, select { 
-      width: 100%; 
-      padding: 8px; 
-      border: 1px solid #ccc; 
-      border-radius: 4px; 
-    }
-    button { 
-      background-color: #4CAF50; 
-      color: white; 
-      padding: 10px 15px; 
-      border: none; 
-      border-radius: 4px; 
-      cursor: pointer; 
-      margin-right: 10px;
-    }
-    button:hover { 
-      background-color: #45a049; 
-    }
-    .image-upload { 
-      margin-top: 10px; 
-    }
-    .image-controls { 
-      margin-top: 10px; 
-      display: flex; 
-      flex-wrap: wrap; 
-      gap: 10px;
-    }
-    .image-controls input { 
-      width: 60px; 
-    }
-    .tab-container { 
-      display: flex; 
-      margin-bottom: 20px;
-    }
-    .tab { 
-      padding: 10px 20px; 
-      background: #ddd; 
-      cursor: pointer; 
-      margin-right: 5px;
-    }
-    .tab.active { 
-      background: #4CAF50; 
-      color: white;
-    }
-    .tab-content { 
-      display: none;
-    }
-    .tab-content.active { 
-      display: block;
-    }
-    #preview-container { 
-      margin-top: 30px; 
-      text-align: center;
-    }
-    .name-input-group {
-      display: flex;
-      gap: 10px;
-    }
-    .name-input-group input {
-      flex: 1;
-    }
-    .name-input-group button {
-      width: auto;
-      padding: 8px 12px;
-    }
-    .paste-btn {
-      background-color: #2196F3;
-      margin-top: 5px;
-    }
-    .paste-btn:hover {
-      background-color: #0b7dda;
-    }
-    .qr-generator {
-      margin-top: 20px;
-      padding: 15px;
-      background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-    }
-    .qr-input-group {
-      display: flex;
-      margin-bottom: 10px;
-    }
-    .qr-input-group input {
-      flex: 1;
-      margin-right: 10px;
-    }
-    #qr-code-container {
-      margin-top: 15px;
-      text-align: center;
-    }
-    #qr-code-image {
-      max-width: 200px;
-      max-height: 200px;
-    }
-    #download-btn {
-      background-color: #2196F3;
-      margin: 10px auto;
-      display: block;
-    }
-    #download-btn:hover {
-      background-color: #0b7dda;
-    }
-  </style>
+    <!-- 文档基本设置 -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>印钞机</title>
+    
+    <!-- 引入 jQuery 库 -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <!-- 引入 html2canvas 库 -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    
+    <!-- 样式部分 -->
+    <style>
+        /* 基础样式设置 */
+        body {
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            font-family: "仿宋", FangSong, STFangsong, serif;
+            padding-bottom: 80px;
+        }
+        
+        /* 编辑器容器样式 */
+        .editor-container { 
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            max-width: 800px;
+            box-shadow: 0 0px 0px rgba(0,0,0,0.1);
+        }
+        
+        /* 表单组样式 */
+        .form-group { 
+            margin-bottom: 15px;
+        }
+        
+        /* 标签样式 */
+        label { 
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        /* 输入框和选择框样式 */
+        input, select { 
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+        
+        /* 文本区域样式 - 新增 */
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: inherit;
+            resize: vertical; /* 允许垂直调整大小 */
+            min-height: 100px; /* 最小高度 */
+            line-height: 1.4; /* 行高 */
+        }
+        
+        /* 按钮基础样式 */
+        button { 
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        /* 按钮悬停效果 */
+        button:hover { 
+            background-color: #45a049;
+        }
+        
+        /* 标签页容器样式 */
+        .tab-container { 
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        /* 单个标签样式 */
+        .tab { 
+            padding: 12px 20px;
+            background: #f0f0f0;
+            cursor: pointer;
+            margin-right: 5px;
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s;
+        }
+        
+        /* 活动标签样式 */
+        .tab.active { 
+            background: #4CAF50;
+            color: white;
+        }
+        
+        /* 标签内容默认隐藏 */
+        .tab-content { 
+            display: none;
+            padding: 20px 0;
+        }
+        
+        /* 活动标签内容显示 */
+        .tab-content.active { 
+            display: block;
+        }
+        
+        /* 卡片信息容器样式 */
+        .cardinfo {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            font-size: 14px;
+            background-color: #f5f5f5;
+            padding: 20px 0;
+        }
+        
+        /* 健康证卡片样式 */
+        .card {
+            width: 350px;
+            height: 220px;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        /* 卡片信息区域样式 */
+        .card .info {
+            width: 200px;
+            padding: 0 10px;
+            position: absolute;
+            z-index: 999;
+            top: 3px;
+            left: 10px;
+        }
+        
+        /* 卡片信息文本样式 */
+        .card .info * {
+            font-weight: bold;
+            font-size: 13px;
+            font-family: "仿宋", FangSong, STFangsong, serif;
+            color: #333;
+            line-height: 1.3;
+        }
+        
+        /* 编号文本不换行 */
+        .card .bh { white-space: nowrap; }
+        
+        /* 姓名和性别在同一行显示 */
+        .card .xm span { display: inline-block; width: calc(50%); }
+        
+        /* 卡片信息项间距 */
+        .card .info div { margin-bottom: 5px; }
+        
+        /* 头像图片样式 */
+        .card .headimg {
+            position: absolute;
+            right: 16px;
+            top: 40px;
+            width: 80px;
+            height: 110px;
+            z-index: 999;
+            border-radius: 5px;
+            border: 0px solid #ddd;
+            object-fit: cover;
+        }
+        
+        /* 医院信息样式 */
+        .cardinfo .hosp {
+            position: absolute;
+            bottom: 7px;
+            margin-left: 10px;
+            color: #fff;
+            z-index: 999;
+        }
+        
+        /* 模板图片样式 */
+        .card-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            border-radius: 10px;
+        }
+        
+        /* 印章图片样式 */
+        .ygqimg {
+            width: 130px;
+            position: absolute;
+            right: 87px;
+            top: calc(30% - 15px);
+            z-index: 1000;
+        }
+        
+        /* 二维码容器样式 */
+        .qr-container {
+            display: flex;
+            align-items: center;
+            position: absolute;
+            gap: 3px;
+            right: 7.5px;
+            top: 130px;
+            width: fit-content;
+            z-index: 999;
+        }
+        
+        /* 二维码样式 */
+        #qrcode {
+            width: 63px;
+            height: 63px;
+            z-index: 999;
+            border-radius: 0px;
+            background-color: #fff;
+            border: 1.5px solid #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 二维码canvas和图片样式 */
+        #qrcode canvas, #qrcode img { 
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        /* 垂直文本样式（"二维码"文字） */
+        .vertical-text {
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            font-size: 10px;
+            z-index: 999;
+            font-family: "仿宋", FangSong, STFangsong, serif;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        /* 按钮组样式 */
+        .button-group {
+            display: flex;
+            justify-content: center;
+            margin-top: -40px;
+            margin-bottom: -30px;
+            gap: 10px;
+        }
+        
+        /* 错误提示样式 */
+        .error { 
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        /* 图片上传容器样式 */
+        .image-upload-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        /* 移动设备响应式设计 */
+        @media (max-width: 600px) {
+            .editor-container {
+                padding: 15px;
+                margin: 10px;
+            }
+            
+            .card {
+                width: 300px;
+                height: 200px;
+            }
+            
+            .card .info {
+                width: 180px;
+                font-size: 13px;
+            }
+            
+            .card .headimg {
+                width: 70px;
+                height: 95px;
+            }
+        }
+        
+        /* 标题样式 */
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        
+        /* 姓名输入组样式 */
+        .name-input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .name-input-group input {
+            flex: 1;
+        }
+        
+        /* 粘贴按钮样式 */
+        .paste-btn {
+            background-color: #2196F3;
+            margin-top: 5px;
+        }
+        
+        .paste-btn:hover {
+            background-color: #0b7dda;
+        }
+        
+        /* 二维码生成器区域样式 */
+        .qr-generator {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        /* 二维码输入组样式 */
+        .qr-input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 10px;
+        }
+        
+        /* 自动扩展文本区域容器 - 新增 */
+        .auto-expand-textarea {
+            position: relative;
+            width: 100%;
+        }
+        
+        /* 文本区域自动扩展样式 - 新增 */
+        .auto-expand-textarea textarea {
+            width: 100%;
+            min-height: 100px;
+            resize: none; /* 禁用手动调整大小 */
+            overflow: hidden; /* 隐藏滚动条 */
+            box-sizing: border-box;
+            font-family: monospace; /* 使用等宽字体，方便查看格式 */
+            line-height: 1.4;
+        }
+        
+        /* 生成二维码按钮样式 */
+        .generate-qr-btn-container {
+            margin-top: 10px;
+        }
+        
+        /* 二维码容器样式 */
+        #qr-code-container {
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        /* 二维码图片样式 */
+        #qr-code-image {
+            max-width: 200px;
+            max-height: 200px;
+            display: none;
+        }
+        
+        /* 下载按钮样式 */
+        #download-btn, #download-no-qr-btn, #download-no-qr-btn-2 {
+            background-color: #2196F3;
+            margin: 10px auto;
+            display: block;
+        }
+        
+        #download-btn:hover, #download-no-qr-btn:hover, #download-no-qr-btn-2:hover {
+            background-color: #0b7dda;
+        }
+        
+        /* 预览卡片容器样式 */
+        .preview-cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        /* 预览卡片标题样式 */
+        .preview-card-title {
+            text-align: center;
+            margin-bottom: 0px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-  <div class="editor-container">
-    <h1 style="text-align: center;">电子健康证编辑器</h1>
-    
-    <div class="tab-container">
-      <div class="tab active" data-tab="basic">信息</div>
-      <div class="tab" data-tab="images">设置</div>
-      <div class="tab" data-tab="preview">预览</div>
-      <div class="tab" data-tab="cli-im">二维码</div>
-    </div>
-    
-    <!-- 基本信息标签页 -->
-    <div class="tab-content active" id="basic-tab">
-      <div class="form-group">
-        <label for="name">姓名:</label>
-        <div class="name-input-group">
-          <input type="text" id="name" placeholder="请输入姓名">
-          <button id="auto-fill-btn">自动识别</button>
+    <!-- 主编辑器容器 -->
+    <div class="editor-container">
+        <h1>印钞机</h1>
+        
+        <!-- 标签页导航 -->
+        <div class="tab-container">
+            <div class="tab active" data-tab="basic">信息</div>
+            <div class="tab" data-tab="images">设置</div>
+            <div class="tab" data-tab="preview">预览</div>
+            <div class="tab" data-tab="qr">二维码</div>
         </div>
-        <small class="error" id="name-error"></small>
-      </div>
-      
-      <div class="form-group">
-        <label for="id-number">身份证号:</label>
-        <input type="text" id="id-number" maxlength="50" placeholder="请输入18位身份证号">
-        <small class="error" id="id-error"></small>
-      </div>
-      
-      <div class="form-group">
-        <label for="cert-number">编号:</label>
-        <input type="text" id="cert-number" placeholder="请输入编号">
-      </div>
-      
-      <div class="form-group">
-        <label>个人照片:</label>
-        <input type="file" id="seal-upload" accept="image/*" class="image-upload">
-      </div>
-      
-      <div class="form-group">
-        <label>二维码:</label>
-        <input type="file" id="photo-upload" accept="image/*" class="image-upload">
-        <button class="paste-btn" id="paste-qr-btn">粘贴二维码图片</button>
-      </div>
-      
-      <div class="form-group">
-        <label for="age">年龄:</label>
-        <input type="number" id="age" min="0" max="120">
-      </div>
-      
-      <div class="form-group">
-        <label for="gender">性别:</label>
-        <select id="gender">
-          <option value="男">男</option>
-          <option value="女">女</option>
-        </select>
-      </div>
-      
-      <div class="form-group">
-        <label for="exam-date">体检日期:</label>
-        <input type="date" id="exam-date">
-      </div>
-    </div>
-    
-    <!-- 图片设置标签页 -->
-    <div class="tab-content" id="images-tab">
-      <div class="form-group">
-        <label for="cert-type">健康证类型:</label>
-        <select id="cert-type">
-          <option value="食品健康证">食品健康证</option>
-          <option value="公共场所健康证">公共场所健康证</option>
-          <option value="医药销售健康证">医药销售健康证</option>
-          <option value="供管水健康证">供管水健康证</option>
-          <option value="化妆品生产健康证">化妆品生产健康证</option>
-          <option value="消毒产品生产健康证">消毒产品生产健康证</option>
-        </select>
-      </div>
-      
-      <div class="form-group">
-        <label>二维码:</label>
-        <div class="image-controls">
-          <div>
-            <label>位置X:</label>
-            <input type="number" id="photo-x" value="0">
-          </div>
-          <div>
-            <label>位置Y:</label>
-            <input type="number" id="photo-y" value="0">
-          </div>
-          <div>
-            <label>宽度:</label>
-            <input type="number" id="photo-width" value="80">
-          </div>
-          <div>
-            <label>高度:</label>
-            <input type="number" id="photo-height" value="auto">
-          </div>
-        </div>
-      </div>
-      
-      <div class="form-group">
-        <label>印章:</label>
-        <input type="file" id="stamp-upload" accept="image/*" class="image-upload">
-        <div class="image-controls">
-          <div>
-            <label>位置X:</label>
-            <input type="number" id="stamp-x" value="150">
-          </div>
-          <div>
-            <label>位置Y:</label>
-            <input type="number" id="stamp-y" value="0">
-          </div>
-          <div>
-            <label>宽度:</label>
-            <input type="number" id="stamp-width" value="100">
-          </div>
-          <div>
-            <label>高度:</label>
-            <input type="number" id="stamp-height" value="auto">
-          </div>
-        </div>
-      </div>
-      
-      <div class="form-group">
-        <label>个人照片设置:</label>
-        <div class="image-controls">
-          <div>
-            <label>位置X:</label>
-            <input type="number" id="seal-x" value="12">
-          </div>
-          <div>
-            <label>位置Y:</label>
-            <input type="number" id="seal-y" value="10">
-          </div>
-          <div>
-            <label>宽度:</label>
-            <input type="number" id="seal-width" value="80">
-          </div>
-          <div>
-            <label>高度:</label>
-            <input type="number" id="seal-height" value="auto">
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- 预览标签页 -->
-    <div class="tab-content" id="preview-tab">
-      <button id="download-btn">下载健康证图片</button>
-      <div id="content" style="margin:0 auto;background:#F8F8F8;width:390px;position:relative;">
-        <div style="background:#fff;margin:0 20px 0;border:2px solid #333;border-radius:14px;">
-          <div style="padding:8px 0;text-align:center;font-size:16px;border-bottom:2px solid rgb(48,42,155)" class="fc">重庆市从业人员健康合格证明</div>
-          <div style="position:relative;z-index:2;padding:0 20px">
-            <div>
-              <div style="padding:10px 0;">
-                <div class="dis" style="width:220px;">
-                  <div>
-                    <span class="fc">类别：</span>
-                    <span class="f1" id="preview-cert-type">食品健康证</span>
-                  </div>
-                  <div>
-                    <span class="fc">性别：</span>
-                    <span class="f1" id="preview-gender">男</span>
-                  </div>
-                </div>    
-                
-                <div class="dis" style="margin:10px 0;width:220px;">
-                  <div>
-                    <span class="fc">姓名：</span>
-                    <span class="f1" id="preview-name">海</span>
-                  </div>
-                  <div>
-                    <span class="fc">年龄：</span>
-                    <span class="f1" id="preview-age">19</span>
-                  </div>
+        
+        <!-- 基本信息标签页 -->
+        <div class="tab-content active" id="basic-tab">
+            <div class="form-group">
+                <label for="name">姓名:</label>
+                <div class="name-input-group">
+                    <input type="text" id="name" placeholder="请输入姓名">
+                    <button id="auto-fill-btn">自动识别</button>
                 </div>
-                <div class="dis">
-                  <div>
-                    <span class="fc">编号：</span>
-                    <span class="f1" id="preview-cert-number">370881200605031531</span>
-                  </div>
+                <small class="error" id="name-error"></small>
+            </div>
+            
+            <div class="form-group">
+                <label for="cert-number">编号:</label>
+                <div class="name-input-group">
+                    <input type="text" id="cert-number" placeholder="请输入编号">
+                    <button id="random-id-btn">随机编号</button>
                 </div>
-              </div>
-              <div style="display:flex;">
-                <img id="preview-photo" src="https://tncache1-f1.v3mh.com/image/2025/09/13/2edb1715796eef45aebc36a924712b69.png" style="width:80px;height:auto;margin-left:-5px">
-                <div style="display:flex;flex-direction: column;justify-content: space-around;margin-left:4px;">
-                  <div>
-                    <span class="fc">体检日期：</span>
-                    <span class="f1" id="preview-exam-date">2025-07-24</span>
-                  </div>
-                  <div>
-                    <span class="fc">有效期一年</span>
-                  </div>
-                  <div>
-                    <span class="fc">身份证号：</span>
-                    <span class="f1" id="preview-id-number">370881200605031531</span>
-                  </div>
+                <small class="error" id="id-error">输入身份证号可自动识别性别</small>
+            </div>
+            
+            <div class="form-group">
+                <label>个人照片:</label>
+                <div class="image-upload-container">
+                    <input type="file" id="photo-upload" accept="image/*">
                 </div>
-              </div>
-            </div>    
-            <div style="position:absolute;left:150px;bottom:0;z-index:1">
-              <img id="preview-stamp" src="https://tncache1-f1.v3mh.com/image/2025/09/09/9f110d0f54e1946258de07b0deb14e98.png" style="width:100px;height:auto">
             </div>
-            <div style="position:absolute;right:12px;top:10px;z-index:1">
-              <img id="preview-seal" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MCIgaGVpZ2h0PSI4MCIgdmlld0BveD0iMCAwIDgwIDgwIj48Y2lyY2xlIGN4PSI0MCIgY3k9IjQwIiByPSIzNSIgc3Ryb2tlPSIjMDAwMGI1IiBzdHJva2Utd2lkdGg9IjIiIGZpbGw9Im5vbmUiLz48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9Im1pZGRsZSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzAwMDBiNSIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjgiPlNlYWwgUGxhY2Vob2xkZXI8L3RleHQ+PC9zdmc+" style="width:80px;height:auto">
+            
+            <div class="form-group">
+                <label>二维码:</label>
+                <div class="image-upload-container">
+                    <input type="file" id="qr-upload" accept="image/*">
+                    <button class="paste-btn" id="paste-qr-btn">粘贴二维码图片</button>
+                </div>
             </div>
-          </div>
-          <div style="width:100%;height:2px;background:rgb(48,42,155);margin-bottom:2px;"></div>
-          <div style="padding:6px 0;text-align:center;font-size:13px;border-bottom:2px solid rgb(48,42,155);color:#fff;background:rgb(41,45,153);border-radius:0 0 12px 12px">发证机构：垫江县桂阳社区卫生服务中心</div>
+            
+            <div class="form-group">
+                <label for="gender">性别:</label>
+                <select id="gender">
+                    <option value="">男</option>
+                    <option value="">女</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="exam-date">发证日期:</label>
+                <input type="date" id="exam-date">
+            </div>
+            
+            <div class="form-group">
+                <label for="issuing-authority">发证机构:</label>
+                <input type="text" id="issuing-authority" value="">
+            </div>
         </div>
-        
-        <div style="background:#fff;margin:20px;border:2px solid #333;border-radius:14px;">
-          <div style="padding:8px 0;text-align:center;font-size:16px;border-bottom:2px solid rgb(48,42,155)" class="fc">健康合格证说明</div>
-          <div style="position:relative;z-index:2;padding:0 20px">
-            <div>
-              <span class="fc">检查依据:</span>
-              <span style="color:#000;font-size:12px">《中华人民共和国食品安全法》、《公共场所卫生管理条例实施细则》、《生活饮用水卫生监督管理办法》《化妆品卫生监督条例》、《中华人民共和国药品管理法》《消毒理办法》等</span>
+        
+        <!-- 图片设置标签页 -->
+        <div class="tab-content" id="images-tab">
+            <div class="form-group">
+                <label for="cert-type">从业类别:</label>
+                <select id="cert-type">
+                    <option value="食品">食品</option>
+                    <option value="公共场所">公共场所</option>
+                    <option value="医药销售">医药销售</option>
+                    <option value="供管水">供管水</option>
+                    <option value="化妆品生产">化妆品生产</option>
+                    <option value="消毒产品生产">消毒产品生产</option>
+                </select>
             </div>
-            <div>
-              <span class="fc">适用范围:</span>
-              <span style="color:#000;font-size:12px"> 食品生产经营、公共场所、医药销售、供管水、化妆品生产和消毒产品生产等从业人员。</span>
+            
+            <div class="form-group">
+                <label>模板图片:</label>
+                <div class="image-upload-container">
+                    <input type="file" id="bg-upload" accept="image/*">
+                </div>
             </div>
-            <div>
-              <div class="fc">提示:</div>
-              <div style="color:#000;font-size:12px"> 1、本证本市范围有效，请随身携带以备监督部门检查</div>
-              <div style="color:#000;font-size:12px"> 2、再次体检换证请在本证期满前及时办理，过期无效</div>
+            
+            <div class="form-group">
+                <label>印章图片:</label>
+                <div class="image-upload-container">
+                    <input type="file" id="expiry-upload" accept="image/*">
+                </div>
             </div>
-          </div>
-          <div style="width:100%;height:2px;background:rgb(48,42,155);margin-bottom:2px;"></div>
-          <div style="display:flex;justify-content: space-between;padding:6px 0;text-align:center;font-size:13px;border-bottom:2px solid rgb(48,42,155);color:#fff;background:rgb(41,45,153);border-radius:0 0 12px 12px">
-            <span></span>
-            <span style="margin-right:10px;">垫江县桂阳社区卫生服务中心</span>
-          </div>
         </div>
-      </div>
+        
+        <!-- 预览标签页 -->
+        <div class="tab-content" id="preview-tab">
+            <div class="button-group">
+                <button id="download-btn">下载带二维码健康证</button>
+                <button id="download-no-qr-btn">下载无二维码健康证</button>
+                <button id="download-no-qr-btn-2">下载无二维码健康证(备用)</button>
+            </div>
+            
+            <!-- 健康证预览区域 -->
+            <div class="preview-cards-container">
+                <!-- 带二维码版本预览 -->
+                <div>
+                    <div class="preview-card-title"></div>
+                    <section class="cardpic" id="certificatePreview">
+                        <div class="cardinfo">
+                            <div class="card">
+                                <div class="info">
+                                    <div class="bh" style="margin-top: 30px">编&emsp;号: <span id="previewId">159357</span></div>
+                                    <div class="bh">姓&emsp;名: <span id="previewName">王粮</span><span>&emsp;&emsp;<span id="previewGender">男</span></span></div>
+                                    <div class="bh">从业类别: <span id="previewCategory">食品</span></div>
+                                    <div class="bh">检查结果: 合格</div>
+                                    <div class="fzri">发证日期: <span id="previewDate">2025-09-12</span></div>
+                                    <div class="fzdw">有效期限: <span id="previewExpiry">一年</span></div>
+                                    <div class="fzdw">发证机构:<span id="previewAuthority">贵阳市疾病预防控制中心</span></div>
+                                </div>
+                                <!-- 预览图片元素 -->
+                                <img id="previewPhotoImg" src="https://tncache1-f1.v3mh.com/image/2025/09/21/9737b6301c48fdbc5019525266417441.png" class="headimg" />
+                                <img id="previewExpiryImg" src="https://tncache1-f1.v3mh.com/image/2025/09/18/0e7107408240caf1c263060f99e19c30.png" class="ygqimg" alt="印章图片"/>
+                                <img id="previewBgImg" src="https://tncache1-f1.v3mh.com/image/2025/09/18/0f173f2c1959b1b065a58d9d7e6e6465.jpeg" class="card-bg" alt="模板图片"/>
+                                <div class="qr-container">
+                                    <div id="qrcode">
+                                        <img id="previewQrImg" src="https://tncache1-f1.v3mh.com/image/2025/09/18/653662e38f941bb035549a4e76e0b55b.png" alt="健康证明二维码">
+                                    </div>
+                                    <div class="vertical-text">二维码</div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                
+                <!-- 无二维码版本预览 -->
+                <div>
+                    <div class="preview-card-title"></div>
+                    <section class="cardpic" id="certificatePreviewNoQr">
+                        <div class="cardinfo">
+                            <div class="card">
+                                <div class="info">
+                                    <div class="bh" style="margin-top: 30px">编&emsp;号: <span id="previewIdNoQr">159357</span></div>
+                                    <div class="bh">姓&emsp;名: <span id="previewNameNoQr">王粮</span><span>&emsp;&emsp;<span id="previewGenderNoQr">男</span></span></div>
+                                    <div class="bh">从业类别: <span id="previewCategoryNoQr">食品</span></div>
+                                    <div class="bh">检查结果: 合格</div>
+                                    <div class="fzri">发证日期: <span id="previewDateNoQr">2025-09-12</span></div>
+                                    <div class="fzdw">有效期限: <span id="previewExpiryNoQr">一年</span></div>
+                                    <div class="fzdw">发证机构:<span id="previewAuthorityNoQr">贵阳市疾病预防控制中心</span></div>
+                                </div>
+                                <!-- 预览图片元素 -->
+                                <img id="previewPhotoImgNoQr" src="https://tncache1-f1.v3mh.com/image/2025/09/21/9737b6301c48fdbc5019525266417441.png" class="headimg" />
+                                <img id="previewExpiryImgNoQr" src="https://tncache1-f1.v3mh.com/image/2025/09/18/0e7107408240caf1c263060f99e19c30.png" class="ygqimg" alt="印章图片"/>
+                                <img id="previewBgImgNoQr" src="https://tncache1-f1.v3mh.com/image/2025/09/18/0f173f2c1959b1b065a58d9d7e6e6465.jpeg" class="card-bg" alt="模板图片"/>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                
+                <!-- 新增的无二维码版本预览(备用) -->
+                <div>
+                    <div class="preview-card-title"></div>
+                    <section class="cardpic" id="certificatePreviewNoQr2">
+                        <div class="cardinfo">
+                            <div class="card">
+                                <div class="info">
+                                    <div class="bh" style="margin-top: 30px">编&emsp;号: <span id="previewIdNoQr2">159357</span></div>
+                                    <div class="bh">姓&emsp;名: <span id="previewNameNoQr2">王粮</span><span>&emsp;&emsp;<span id="previewGenderNoQr2">男</span></span></div>
+                                    <div class="bh">从业类别: <span id="previewCategoryNoQr2">食品</span></div>
+                                    <div class="bh">检查结果: 合格</div>
+                                    <div class="fzri">发证日期: <span id="previewDateNoQr2">2025-09-12</span></div>
+                                    <div class="fzdw">有效期限: <span id="previewExpiryNoQr2">一年</span></div>
+                                    <div class="fzdw">发证机构:<span id="previewAuthorityNoQr2">胡杨河市疾病预防控制中心</span></div>
+                                </div>
+                                <!-- 预览图片元素 -->
+                                <img id="previewPhotoImgNoQr2" src="https://tncache1-f1.v3mh.com/image/2025/09/21/9737b6301c48fdbc5019525266417441.png" class="headimg" />
+                                <img id="previewExpiryImgNoQr2" src="https://tncache1-f1.v3mh.com/image/2025/09/18/0e7107408240caf1c263060f99e19c30.png" class="ygqimg" alt="印章图片"/>
+                                <img id="previewBgImgNoQr2" src="https://tncache1-f1.v3mh.com/image/2025/09/18/0f173f2c1959b1b065a58d9d7e6e6465.jpeg" class="card-bg" alt="模板图片"/>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 二维码标签页 -->
+        <div class="tab-content" id="qr-tab">
+            <div class="form-group">
+                <label>从剪贴板粘贴二维码图片:</label>
+                <button class="paste-btn" id="paste-qr-btn-2">粘贴二维码图片</button>
+            </div>
+            
+            <!-- 二维码生成器区域 -->
+            <div class="qr-generator">
+                <h3>生成二维码</h3>
+                <div class="qr-input-group">
+                    <div class="auto-expand-textarea">
+                        <textarea id="qr-text" placeholder="输入要生成二维码的内容（支持换行）"></textarea>
+                    </div>
+                    <div class="generate-qr-btn-container">
+                        <button id="generate-qr-btn">生成二维码</button>
+                    </div>
+                </div>
+                <div id="qr-code-container">
+                    <img id="qr-code-image" style="display: none;">
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <!-- 二维码标签页 -->
-    <div class="tab-content" id="cli-im-tab">
-      <div class="form-group">
-        <label>从剪贴板粘贴二维码图片:</label>
-        <button class="paste-btn" id="paste-qr-btn-2">粘贴二维码图片</button>
-      </div>
-      
-      <div class="qr-generator">
-        <h3>生成二维码</h3>
-        <div class="qr-input-group">
-          <input type="text" id="qr-text" placeholder="输入要生成二维码的内容">
-          <button id="generate-qr-btn">生成</button>
-        </div>
-        <div id="qr-code-container">
-          <img id="qr-code-image" style="display: none;">
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <script>
-    $(document).ready(function() {
-      // 标签切换功能
-      $('.tab').click(function() {
-        $('.tab').removeClass('active');
-        $(this).addClass('active');
-        
-        $('.tab-content').removeClass('active');
-        $('#' + $(this).data('tab') + '-tab').addClass('active');
-        
-        if ($(this).data('tab') === 'preview') {
-          updatePreview();
-        }
-      });
-      
-      // 身份证号输入验证和自动计算性别年龄
-      $('#id-number').on('input paste', function(e) {
-        if (e.type === 'paste') {
-          setTimeout(() => {
-            const idNumber = $(this).val().replace(/[^0-9Xx]/g, '');
-            $(this).val(idNumber);
-            if (idNumber.length === 18) {
-              calculateGenderAndAge(idNumber);
-              $('#cert-number').val(idNumber);
-            }
-          }, 0);
-        } else {
-          const idNumber = $(this).val().replace(/[^0-9Xx]/g, '');
-          $(this).val(idNumber);
-          if (idNumber.length === 18) {
-            calculateGenderAndAge(idNumber);
-            $('#cert-number').val(idNumber);
-          }
-        }
-      });
-
-      function calculateGenderAndAge(idNumber) {
-        const genderDigit = parseInt(idNumber.charAt(16));
-        const gender = genderDigit % 2 === 1 ? '男' : '女';
-        $('#gender').val(gender);
-        
-        const birthYear = parseInt(idNumber.substr(6, 4));
-        const birthMonth = parseInt(idNumber.substr(10, 2)) - 1;
-        const birthDay = parseInt(idNumber.substr(12, 2));
-        
-        const today = new Date();
-        const birthDate = new Date(birthYear, birthMonth, birthDay);
-        let age = today.getFullYear() - birthDate.getFullYear();
-        
-        if (today.getMonth() < birthMonth || 
-            (today.getMonth() === birthMonth && today.getDate() < birthDay)) {
-          age--;
-        }
-        
-        $('#age').val(age);
-      }
-      
-      // 姓名输入验证
-      $('#name').on('input', function() {
-        const name = $(this).val();
-        $(this).val(name.replace(/[0-9\s]/g, ''));
-      });
-      
-      // 图片上传处理
-      function handleImageUpload(inputId, previewId) {
-        $(inputId).change(function(e) {
-          const file = e.target.files[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-              $(previewId).attr('src', event.target.result);
-            };
-            reader.readAsDataURL(file);
-          }
-        });
-      }
-      
-      handleImageUpload('#photo-upload', '#preview-photo');
-      handleImageUpload('#stamp-upload', '#preview-stamp');
-      handleImageUpload('#seal-upload', '#preview-seal');
-      
-      // 更新预览
-      function updatePreview() {
-        $('#preview-name').text($('#name').val());
-        $('#preview-gender').text($('#gender').val());
-        $('#preview-age').text($('#age').val());
-        $('#preview-cert-number').text($('#cert-number').val());
-        $('#preview-id-number').text($('#id-number').val());
-        $('#preview-exam-date').text($('#exam-date').val());
-        $('#preview-cert-type').text($('#cert-type').val());
-        
-        $('#preview-photo').css({
-          'margin-left': $('#photo-x').val() + 'px',
-          'margin-top': $('#photo-y').val() + 'px',
-          'width': $('#photo-width').val() + 'px',
-          'height': $('#photo-height').val() === 'auto' ? 'auto' : $('#photo-height').val() + 'px'
-        });
-        
-        $('#preview-stamp').css({
-          'left': $('#stamp-x').val() + 'px',
-          'bottom': $('#stamp-y').val() + 'px',
-          'width': $('#stamp-width').val() + 'px',
-          'height': $('#stamp-height').val() === 'auto' ? 'auto' : $('#stamp-height').val() + 'px'
-        });
-        
-        $('#preview-seal').css({
-          'right': $('#seal-x').val() + 'px',
-          'top': $('#seal-y').val() + 'px',
-          'width': $('#seal-width').val() + 'px',
-          'height': $('#seal-height').val() === 'auto' ? 'auto' : $('#seal-height').val() + 'px'
-        });
-      }
-      
-      // 设置默认日期为昨天
-      const today = new Date();
-      const yesterday = new Date(today);
-      yesterday.setDate(today.getDate() - 1);
-      const formattedDate = yesterday.toISOString().substr(0, 10);
-      $('#exam-date').val(formattedDate);
-      $('#preview-exam-date').text(formattedDate);
-      
-      // 自动识别按钮功能
-      $('#auto-fill-btn').click(function() {
-        navigator.clipboard.readText().then(text => {
-          const nameMatch = text.match(/[\u4e00-\u9fa5]{2,4}/);
-          if (nameMatch) {
-            $('#name').val(nameMatch[0]);
-          }
-          
-          const idMatch = text.match(/\d{17}[\dXx]/);
-          if (idMatch) {
-            const idNumber = idMatch[0].toUpperCase();
-            $('#id-number').val(idNumber);
-            $('#id-number').trigger('input');
-            $('#cert-number').val(idNumber);
-          }
-        }).catch(err => {
-          console.error('无法读取剪贴板:', err);
-          alert('无法读取剪贴板内容，请手动粘贴后再点击此按钮');
-        });
-      });
-      
-      // 二维码生成功能
-      $('#generate-qr-btn').click(function() {
-        const text = $('#qr-text').val();
-        if (text) {
-          const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(text)}`;
-          
-          // 创建图片对象确保加载完成
-          const img = new Image();
-          img.onload = function() {
-            // 更新预览中的二维码
-            $('#preview-photo').attr('src', qrCodeUrl);
-            $('#qr-code-image').attr('src', qrCodeUrl).show();
-            
-            // 确保图片加载完成后再切换到预览标签
-            $('.tab').removeClass('active');
-            $('.tab-content').removeClass('active');
-            $('.tab[data-tab="preview"]').addClass('active');
-            $('#preview-tab').addClass('active');
-            updatePreview();
-          };
-          img.src = qrCodeUrl;
-        }
-      });
-     
-      // 粘贴二维码图片功能
-      function setupPasteQrButton(buttonId, previewId) {
-        $(buttonId).click(async function() {
-          try {
-            const clipboardItems = await navigator.clipboard.read();
-            for (const clipboardItem of clipboardItems) {
-              for (const type of clipboardItem.types) {
-                if (type.startsWith('image/')) {
-                  const blob = await clipboardItem.getType(type);
-                  const imageUrl = URL.createObjectURL(blob);
-                  
-                  // 直接设置预览图片并切换到预览标签
-                  $(previewId).attr('src', imageUrl);
-                  $('#qr-code-image').attr('src', imageUrl).show();
-                  $('.tab').removeClass('active');
-                  $('.tab-content').removeClass('active');
-                  $('.tab[data-tab="preview"]').addClass('active');
-                  $('#preview-tab').addClass('active');
-                  updatePreview();
-                  return;
+    <!-- JavaScript 代码 -->
+    <script>
+        // 文档加载完成后执行
+        $(document).ready(function() {
+            // 设置默认日期为昨天
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const formattedDate = yesterday.toISOString().substr(0, 10);
+            $('#exam-date').val(formattedDate);
+            
+            // 标签页切换功能
+            $('.tab').click(function() {
+                // 移除所有标签的active类
+                $('.tab').removeClass('active');
+                // 为当前点击的标签添加active类
+                $(this).addClass('active');
+                // 隐藏所有标签内容
+                $('.tab-content').removeClass('active');
+                // 显示当前标签对应的内容
+                $('#' + $(this).data('tab') + '-tab').addClass('active');
+                
+                // 如果切换到预览标签，更新预览内容
+                if ($(this).data('tab') === 'preview') {
+                    updatePreview();
                 }
-              }
-            }
-            alert('剪贴板中没有找到图片');
-          } catch (err) {
-            console.error('无法读取剪贴板图片:', err);
-            alert('无法读取剪贴板中的图片，请确保您已复制了图片');
-          }
-        });
-      }
-      
-      setupPasteQrButton('#paste-qr-btn', '#preview-photo');
-      setupPasteQrButton('#paste-qr-btn-2', '#preview-photo');
-      
-      // 下载功能 - 修改后的版本
-      $('#download-btn').click(function() {
-        // 确保所有图片都已加载
-        const images = document.querySelectorAll('#content img');
-        let loadedImages = 0;
-        
-        images.forEach(img => {
-          if (img.complete) {
-            loadedImages++;
-          } else {
-            img.onload = function() {
-              loadedImages++;
-              if (loadedImages === images.length) {
-                captureAndSaveToAlbum();
-              }
-            };
-          }
-        });
-        
-        if (loadedImages === images.length) {
-          captureAndSaveToAlbum();
-        }
-        
-        function captureAndSaveToAlbum() {
-          const content = document.getElementById('content');
-          
-          // 使用html2canvas的配置选项确保正确渲染
-          html2canvas(content, {
-            scale: 2, // 提高分辨率
-            logging: false,
-            useCORS: true, // 允许跨域图片
-            allowTaint: true,
-            backgroundColor: null // 保持透明背景
-          }).then(function(canvas) {
-            // 创建下载链接
-            const link = document.createElement('a');
-            link.download = '健康证_' + new Date().getTime() + '.png';
-            link.href = canvas.toDataURL('image/png');
-            
-            // 创建点击事件
-            const clickEvent = new MouseEvent('click', {
-              view: window,
-              bubbles: true,
-              cancelable: true
             });
-            
-            // 触发下载（在移动设备上会提示保存到相册）
-            link.dispatchEvent(clickEvent);
-            
-            // 在iOS设备上额外提示保存到相册
-            if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-              const img = new Image();
-              img.src = canvas.toDataURL('image/png');
-              img.onload = function() {
-                alert('请长按图片选择"保存到相册"');
-              };
+            
+            // 姓名输入框过滤数字和空格
+            $('#name').on('input', function() {
+                const name = $(this).val();
+                $(this).val(name.replace(/[0-9\s]/g, ''));
+                updateQrTextInput();
+            });
+            
+            // 身份证号输入时自动识别性别
+            $('#cert-number').on('input', function() {
+                const idNumber = $(this).val().trim();
+                
+                // 如果是18位身份证号
+                if (idNumber.length === 18) {
+                    // 获取倒数第二位
+                    const genderDigit = idNumber.charAt(16);
+                    // 判断性别：奇数为男，偶数为女
+                    const gender = parseInt(genderDigit) % 2 === 1 ? '男' : '女';
+                    $('#gender').val(gender);
+                }
+                // 如果是15位身份证号
+                else if (idNumber.length === 15) {
+                    // 获取最后一位
+                    const genderDigit = idNumber.charAt(14);
+                    // 判断性别：奇数为男，偶数为女
+                    const gender = parseInt(genderDigit) % 2 === 1 ? '男' : '女';
+                    $('#gender').val(gender);
+                }
+                
+                updateQrTextInput();
+            });
+            
+            // 自动扩展文本区域功能
+            function autoExpand(textarea) {
+                // 重置高度以获取正确的高度计算
+                textarea.style.height = 'auto';
+                // 设置高度为滚动高度加上一点边距
+                textarea.style.height = (textarea.scrollHeight) + 'px';
             }
-          });
-        }
-      });
-    });
-  </script>
+            
+            // 初始化二维码文本区域
+            const qrTextArea = document.getElementById('qr-text');
+            if (qrTextArea) {
+                // 初始调整高度
+                autoExpand(qrTextArea);
+                
+                // 监听输入变化
+                qrTextArea.addEventListener('input', function() {
+                    autoExpand(this);
+                });
+                
+                // 监听键盘事件，特别是回车键
+                qrTextArea.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        // 防止默认行为，允许换行
+                        setTimeout(() => {
+                            autoExpand(this);
+                        }, 0);
+                    }
+                });
+                
+                // 粘贴时也调整高度
+                qrTextArea.addEventListener('paste', function() {
+                    setTimeout(() => {
+                        autoExpand(this);
+                    }, 0);
+                });
+            }
+            
+            // 更新二维码输入框内容
+            function updateQrTextInput() {
+                const certNumber = $('#cert-number').val() || '4629856485';
+                const name = $('#name').val() || '王粮';
+                const gender = $('#gender').val() || '男';
+                const certType = $('#cert-type').val() || '食品';
+                const examDate = $('#exam-date').val() || '2025-12-04';
+                const issuingAuthority = $('#issuing-authority').val() || '红河哈尼族彝族自治州疾病预防控制中心';
+                
+                const qrText = `从业人员健康证明
+编号：${certNumber}
+姓名：${name}
+性别：${gender}
+从业类别：${certType}
+检查结果：合格
+发证日期：${examDate}
+有效期限：一年
+发证机构：${issuingAuthority}`;
+                
+                $('#qr-text').val(qrText);
+                // 更新后自动调整高度
+                autoExpand(document.getElementById('qr-text'));
+            }
+            
+            /**
+             * 处理图片上传功能
+             * @param {string} inputId 上传输入框ID
+             * @param {string} previewId 预览图片元素ID
+             */
+            function handleImageUpload(inputId, previewId) {
+                $(inputId).change(function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            $(previewId).attr('src', event.target.result);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+            
+            // 为各种图片上传设置处理函数
+            handleImageUpload('#photo-upload', '#previewPhotoImg');
+            handleImageUpload('#qr-upload', '#previewQrImg');
+            handleImageUpload('#bg-upload', '#previewBgImg');
+            handleImageUpload('#expiry-upload', '#previewExpiryImg');
+            
+            // 为无二维码版本的图片上传设置处理函数
+            handleImageUpload('#photo-upload', '#previewPhotoImgNoQr');
+            handleImageUpload('#bg-upload', '#previewBgImgNoQr');
+            handleImageUpload('#expiry-upload', '#previewExpiryImgNoQr');
+            
+            // 为新增的无二维码版本(备用)的图片上传设置处理函数
+            handleImageUpload('#photo-upload', '#previewPhotoImgNoQr2');
+            handleImageUpload('#bg-upload', '#previewBgImgNoQr2');
+            handleImageUpload('#expiry-upload', '#previewExpiryImgNoQr2');
+            
+            // 更新预览区域内容
+            function updatePreview() {
+                // 更新带二维码版本
+                $('#previewName').text($('#name').val() || '王粮');
+                $('#previewGender').text($('#gender').val() || '         ');
+                $('#previewId').text($('#cert-number').val() || '159357');
+                $('#previewCategory').text($('#cert-type').val() || '食品');
+                $('#previewDate').text($('#exam-date').val() || formattedDate);
+                $('#previewExpiry').text('一年');
+                $('#previewAuthority').text($('#issuing-authority').val() || '红河哈尼族彝族自治州疾病预防控制中心');
+                
+                // 更新无二维码版本
+                $('#previewNameNoQr').text($('#name').val() || '王粮');
+                $('#previewGenderNoQr').text($('#gender').val() || '          ');
+                $('#previewIdNoQr').text($('#cert-number').val() || '159357');
+                $('#previewCategoryNoQr').text($('#cert-type').val() || '食品');
+                $('#previewDateNoQr').text($('#exam-date').val() || formattedDate);
+                $('#previewExpiryNoQr').text('一年');
+                $('#previewAuthorityNoQr').text($('#issuing-authority').val() || '惠水县疾病预防控制中心');
+                
+                // 更新新增的无二维码版本(备用)
+                $('#previewNameNoQr2').text($('#name').val() || '王粮');
+                $('#previewGenderNoQr2').text($('#gender').val() || '         ');
+                $('#previewIdNoQr2').text($('#cert-number').val() || '159357');
+                $('#previewCategoryNoQr2').text($('#cert-type').val() || '食品');
+                $('#previewDateNoQr2').text($('#exam-date').val() || formattedDate);
+                $('#previewExpiryNoQr2').text('一年');
+                $('#previewAuthorityNoQr2').text($('#issuing-authority').val() || '胡杨河市疾病预防控制中心');
+                
+                // 更新二维码输入框
+                updateQrTextInput();
+            }
+            
+            // 自动填充按钮点击事件
+            $('#auto-fill-btn').click(function() {
+                // 读取剪贴板内容
+                navigator.clipboard.readText().then(text => {
+                    // 匹配中文姓名（2-4个中文字符）
+                    const nameMatch = text.match(/[\u4e00-\u9fa5]{2,4}/);
+                    if (nameMatch) {
+                        $('#name').val(nameMatch[0]);
+                    }
+                    
+                    // 匹配身份证号（17位数字加1位数字或X）
+                    const idMatch = text.match(/\d{17}[\dXx]/);
+                    if (idMatch) {
+                        const idNumber = idMatch[0].toUpperCase();
+                        $('#cert-number').val(idNumber);
+                        
+                        // 自动识别性别
+                        const genderDigit = idNumber.charAt(16);
+                        const gender = parseInt(genderDigit) % 2 === 1 ? '男' : '女';
+                        $('#gender').val(gender);
+                    }
+                    
+                    // 更新预览和二维码输入框
+                    updatePreview();
+                }).catch(err => {
+                    console.error('无法读取剪贴板:', err);
+                    alert('无法读取剪贴板内容，请手动粘贴后再点击此按钮');
+                });
+            });
+            
+            // 随机编号按钮点击事件
+            $('#random-id-btn').click(function() {
+                // 生成11位随机数字
+                const randomId = Math.floor(10000000000 + Math.random() * 90000000000).toString();
+                $('#cert-number').val(randomId);
+                
+                // 更新预览和二维码输入框
+                updatePreview();
+            });
+            
+            // 发证日期变化时更新二维码输入框
+            $('#exam-date').on('change', updateQrTextInput);
+            
+            // 发证机构变化时更新二维码输入框
+            $('#issuing-authority').on('input', updateQrTextInput);
+            
+            // 从业类别变化时更新二维码输入框
+            $('#cert-type').on('change', updateQrTextInput);
+            
+            // 生成二维码按钮点击事件
+            $('#generate-qr-btn').click(function() {
+                const text = $('#qr-text').val();
+                if (text) {
+                    // 使用第三方API生成二维码
+                    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(text)}`;
+                    $('#qr-code-image').attr('src', qrCodeUrl).show();
+                    
+                    // 确保二维码完全加载后再更新预览并切换标签页
+                    const img = new Image();
+                    img.onload = function() {
+                        $('#previewQrImg').attr('src', qrCodeUrl);
+                        $('.tab[data-tab="preview"]').click();
+                    };
+                    img.src = qrCodeUrl;
+                }
+            });
+            
+            /**
+             * 设置粘贴二维码图片按钮功能
+             * @param {string} buttonId 按钮ID
+             */
+            function setupPasteQrButton(buttonId) {
+                $(buttonId).click(async function() {
+                    try {
+                        // 读取剪贴板中的图片
+                        const clipboardItems = await navigator.clipboard.read();
+                        for (const clipboardItem of clipboardItems) {
+                            for (const type of clipboardItem.types) {
+                                if (type.startsWith('image/')) {
+                                    const blob = await clipboardItem.getType(type);
+                                    const imageUrl = URL.createObjectURL(blob);
+                                    $('#previewQrImg').attr('src', imageUrl);
+                                    return;
+                                }
+                            }
+                        }
+                        alert('剪贴板中没有找到图片');
+                    } catch (err) {
+                        console.error('无法读取剪贴板图片:', err);
+                        alert('无法读取剪贴板中的图片，请确保您已复制了图片');
+                    }
+                });
+            }
+            
+            // 为两个粘贴二维码按钮设置功能
+            setupPasteQrButton('#paste-qr-btn');
+            setupPasteQrButton('#paste-qr-btn-2');
+            
+            // 下载按钮点击事件（带二维码版本）
+            $('#download-btn').click(function() {
+                const content = document.getElementById('certificatePreview');
+                
+                // 使用html2canvas将预览区域转为图片
+                html2canvas(content, {
+                    scale: 4,
+                    dpi: 300,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: null,
+                    logging: false,
+                    letterRendering: true,
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high'
+                }).then(function(canvas) {
+                    // 创建下载链接
+                    const link = document.createElement('a');
+                    // 生成随机五位数字
+                    const randomNum = Math.floor(10000 + Math.random() * 90000);
+                    // 使用姓名+随机五位数字作为文件名
+                    const fileName = ($('#name').val() || '健康证') + randomNum + '_.png';
+                    link.download = fileName;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                }).catch(err => {
+                    console.error('生成图片时出错:', err);
+                    alert('生成图片时出错，请重试');
+                });
+            });
+            
+            // 下载按钮点击事件（无二维码版本）
+            $('#download-no-qr-btn').click(function() {
+                const content = document.getElementById('certificatePreviewNoQr');
+                
+                // 使用html2canvas将预览区域转为图片
+                html2canvas(content, {
+                    scale: 4,
+                    dpi: 300,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: null,
+                    logging: false,
+                    letterRendering: true,
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high'
+                }).then(function(canvas) {
+                    // 创建下载链接
+                    const link = document.createElement('a');
+                    // 生成随机五位数字
+                    const randomNum = Math.floor(10000 + Math.random() * 90000);
+                    // 使用姓名+随机五位数字作为文件名
+                    const fileName = ($('#name').val() || '健康证') + randomNum + '_.png';
+                    link.download = fileName;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                }).catch(err => {
+                    console.error('生成图片时出错:', err);
+                    alert('生成图片时出错，请重试');
+                });
+            });
+            
+            // 下载按钮点击事件（新增无二维码的版本-备用）
+            $('#download-no-qr-btn-2').click(function() {
+                const content = document.getElementById('certificatePreviewNoQr2');
+                
+                // 使用html2canvas将预览区域转为图片
+                html2canvas(content, {
+                    scale: 4,
+                    dpi: 300,
+                    useCORS: true,
+                    allowTaint: true,
+                    backgroundColor: null,
+                    logging: false,
+                    letterRendering: true,
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high'
+                }).then(function(canvas) {
+                    // 创建下载链接
+                    const link = document.createElement('a');
+                    // 生成随机五位数字
+                    const randomNum = Math.floor(10000 + Math.random() * 90000);
+                    // 使用姓名+随机五位数字作为文件名
+                    const fileName = ($('#name').val() || '健康证') + randomNum + '_.png';
+                    link.download = fileName;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                }).catch(err => {
+                    console.error('生成图片时出错:', err);
+                    alert('生成图片时出错，请重试');
+                });
+            });
+            
+            // 初始时更新预览和二维码输入框
+            updatePreview();
+        });
+    </script>
 </body>
 </html>
+
