@@ -205,7 +205,7 @@
         .ygqimg {
             width: 130px;
             position: absolute;
-            right: 87px;
+            right: 98px;
             top: calc(30% - 15px);
             z-index: 1000;
         }
@@ -215,21 +215,21 @@
             display: flex;
             align-items: center;
             position: absolute;
-            gap: 3px;
-            right: 7.5px;
-            top: 130px;
+            gap: 10px;
+            right: -17px;
+            top: 96px;
             width: fit-content;
             z-index: 999;
         }
         
         /* 二维码样式 */
         #qrcode {
-            width: 63px;
-            height: 63px;
+            width: 95px;
+            height: 95px;
             z-index: 999;
             border-radius: 0px;
             background-color: #fff;
-            border: 1.5px solid #ffffff;
+            border: 1px solid #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -556,7 +556,7 @@
                                     <div class="bh">检查结果: 合格</div>
                                     <div class="fzri">发证日期: <span id="previewDateNoQr">2025-09-12</span></div>
                                     <div class="fzdw">有效期限: <span id="previewExpiryNoQr">一年</span></div>
-                                    <div class="fzdw">发证机构:<span id="previewAuthorityNoQr">贵阳市疾病预防控制中心</span></div>
+                                    <div class="fzdw">发证机构:<span id="previewAuthorityNoQr">惠水县疾病预防控制中心</span></div>
                                 </div>
                                 <!-- 预览图片元素 -->
                                 <img id="previewPhotoImgNoQr" src="https://tncache1-f1.v3mh.com/image/2025/09/21/9737b6301c48fdbc5019525266417441.png" class="headimg" />
@@ -720,7 +720,7 @@
                 const gender = $('#gender').val() || '男';
                 const certType = $('#cert-type').val() || '食品';
                 const examDate = $('#exam-date').val() || '2025-12-04';
-                const issuingAuthority = $('#issuing-authority').val() || '红河哈尼族彝族自治州疾病预防控制中心';
+                const issuingAuthority = $('#issuing-authority').val() || '贵阳市疾病预防控制中心';
                 
                 const qrText = `从业人员健康证明
 编号：${certNumber}
@@ -780,7 +780,7 @@
                 $('#previewCategory').text($('#cert-type').val() || '食品');
                 $('#previewDate').text($('#exam-date').val() || formattedDate);
                 $('#previewExpiry').text('一年');
-                $('#previewAuthority').text($('#issuing-authority').val() || '红河哈尼族彝族自治州疾病预防控制中心');
+                $('#previewAuthority').text($('#issuing-authority').val() || '贵阳市疾病预防控制中心');
                 
                 // 更新无二维码版本
                 $('#previewNameNoQr').text($('#name').val() || '王粮');
@@ -1001,4 +1001,3 @@
     </script>
 </body>
 </html>
-
