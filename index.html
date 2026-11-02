@@ -645,9 +645,10 @@
                 }
             });
             
-            // 姓名输入框过滤数字和空格
-            $('#name').on('input', function() {
+            // 姓名输入框：移除 input 事件过滤，改为 blur 时清理非法字符（解决 iOS 13 拼音残留问题）
+            $('#name').on('blur', function() {
                 const name = $(this).val();
+                // 仅保留中文、英文、点号等合法字符，去除数字和多余空格
                 $(this).val(name.replace(/[0-9\s]/g, ''));
                 updateQrTextInput();
             });
@@ -999,4 +1000,3 @@
     </script>
 </body>
 </html>
-	
